@@ -1,9 +1,29 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 const port = 3000;
 
 app.use(express.json());
+
+//rate limiters
+
+//otp rate limiter
+const otpLimiter = rateLimit({
+  windowMs: 5*60*1000, //5 minutes
+  max:3, //limit each ip to 3 otp request per window
+  message:"too many request, please try again after 5 minutes",
+  standardHeaders:true,//return rate limit info in rate limit headers
+  legacyHeaders:false,//disable the x-ratelimit headers
+});
+
+const passwordResetLimiter = rateLimit({
+  windowMs: 15*60*1000, //15 minutes
+  max:5, //limit each ip to 3 otp request per window
+  message:"too many request, please try again after 15 minutes",
+  standardHeaders:true,//return rate limit info in rate limit headers
+  legacyHeaders:false,//disable the x-ratelimit headers
+})
 
 
 //storing otp in simple in memory object record which is an typescript type
@@ -11,7 +31,7 @@ const otpStore: Record<string,string> = {};
 console.log(otpStore);
 
 // Endpoint to generate and log OTP
-app.post('/generate-otp', (req, res) => {
+app.post('/generate-otp', otpLimiter,(req, res) => {
     const email = req.body.email;
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
@@ -24,7 +44,7 @@ app.post('/generate-otp', (req, res) => {
   });
   
   // Endpoint to reset password
-  app.post('/reset-password', (req, res) => {
+  app.post('/reset-password',passwordResetLimiter, (req, res) => {
     const { email, otp, newPassword } = req.body;
     if (!email || !otp || !newPassword) {
       return res.status(400).json({ message: "Email, OTP, and new password are required" });
