@@ -27,15 +27,18 @@ sendRequest("123456");
 //sending request in batches because if we send all thousands of request together our process will ran out of memory
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        //for loop to send request from 0 to 100 to 200, in form of 100 batch
+        //for loop to send request from 0 to 100 to 200, in form of 100 per  batch
         for (let i = 0; i <= 999999; i += 100) {
             const p = [];
+            console.log(p);
             //here we are sending 100 request at once and waiting it to complete
             for (let j = 0; j < 100; j++) {
                 console.log(i);
+                console.log(j);
+                /// i + j generates unique IDs for each request,
                 p.push(sendRequest((i + j).toString()));
             }
-            //here waiting for all 100 request to complete
+            //here waiting for all 100 request to complete before proceeding for next batch
             yield Promise.all(p);
         }
     });
