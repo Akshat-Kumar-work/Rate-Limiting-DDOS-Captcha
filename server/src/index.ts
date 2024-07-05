@@ -28,7 +28,7 @@ const passwordResetLimiter = rateLimit({
 
 //storing otp in simple in memory object record which is an typescript type
 const otpStore: Record<string,string> = {};   
-console.log(otpStore);
+
 
 // Endpoint to generate and log OTP
 app.post('/generate-otp', otpLimiter,(req, res) => {
